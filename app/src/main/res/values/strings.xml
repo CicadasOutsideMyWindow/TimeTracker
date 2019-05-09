@@ -1,0 +1,12 @@
+<resources>
+    <string name="app_name">TimeTracker</string>
+    <string-array name="activities_array">
+        <item>Rest</item>
+        <item>Entertaining</item>
+        <item>Sports</item>
+        <item>Work</item>
+        <item>Studying</item>
+        <item>Sleep</item>
+        <item>Custom Activity (to be implemented)</item>
+    </string-array>
+</resources>
