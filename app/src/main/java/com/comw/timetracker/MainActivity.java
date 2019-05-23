@@ -3,6 +3,7 @@ package com.comw.timetracker;
 import android.os.SystemClock;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.Chronometer;
@@ -14,11 +15,11 @@ public class MainActivity extends AppCompatActivity {
 
     private Chronometer chronometer;
     private long pauseOffset;
-    private boolean chronimeterRunning;
+    private boolean chronometerRunning;
+
     private TextView startButton;
-//
-//    Spinner spinner  = (Spinner) findViewById(R.id.activity_type_spinner);
-//    ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource(this, R.array.activities_array, android.R.layout.simple_spinner_item);
+    private TextView pauseButton;
+    private TextView stopButton;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -26,7 +27,6 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
 
         Spinner spinner = (Spinner) findViewById(R.id.activity_type_spinner);
-//        ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource(this, R.array.activities_array, android.R.layout.simple_spinner_item);
         ArrayAdapter adapter = ArrayAdapter.createFromResource(this, R.array.activities_array, R.layout.spinner_item);
 
 
@@ -34,6 +34,9 @@ public class MainActivity extends AppCompatActivity {
         spinner.setAdapter(adapter);
 
         startButton = findViewById(R.id.start_button);
+        pauseButton = findViewById(R.id.pause_button);
+        stopButton = findViewById(R.id.reset_button);
+
         chronometer = findViewById(R.id.chronometer);
 
         chronometer.setOnChronometerTickListener(new Chronometer.OnChronometerTickListener() {
@@ -55,42 +58,43 @@ public class MainActivity extends AppCompatActivity {
 
     public void startChronometer(View v) {
 
-        TextView pauseButton = findViewById(R.id.pause_button);
+        if (!chronometerRunning) {
 
-        if (!chronimeterRunning) {
-            if (startButton.getText() != "Start") {
-                startButton.setText("Start");
-                startButton.setTextColor(getApplication().getResources().getColor(R.color.colorPrimaryDark));
-            }
+            Log.i("Button tapped", "Start");
 
-            //TODO: disable Start button unless Pause is clicked;
-            chronometer.setBase(SystemClock.elapsedRealtime() - pauseOffset);
-            pauseButton.setEnabled(true);
             startButton.setEnabled(false);
+            pauseButton.setEnabled(true);
+            stopButton.setEnabled(true);
+
+            startButton.setTextColor(getApplication().getResources().getColor(R.color.disabledButtonColor));
+            pauseButton.setTextColor(getApplication().getResources().getColor(R.color.enabledButtonColor));
+            stopButton.setTextColor(getApplication().getResources().getColor(R.color.enabledButtonColor));
+
+            chronometer.setBase(SystemClock.elapsedRealtime() - pauseOffset);
+
             chronometer.start();
-            chronimeterRunning = true;
+            chronometerRunning = true;
         }
 
     }
 
     public void pauseChronometer(View v) {
-        if (chronimeterRunning) {
+        if (chronometerRunning) {
 
-            TextView startButton = findViewById(R.id.start_button);
-            TextView pauseButton = findViewById(R.id.pause_button);
-
-            startButton.setTextColor(getApplication().getResources().getColor(R.color.colorPrimary));
-            pauseButton.setTextColor(getApplication().getResources().getColor(R.color.colorPrimaryDark));
+            Log.i("Button tapped", "Pause");
 
             startButton.setEnabled(true);
             pauseButton.setEnabled(false);
+
+            startButton.setTextColor(getApplication().getResources().getColor(R.color.enabledButtonColor));
+            pauseButton.setTextColor(getApplication().getResources().getColor(R.color.disabledButtonColor));
 
             startButton.setText("Resume");
 
             chronometer.stop();
 
             pauseOffset = SystemClock.elapsedRealtime() - chronometer.getBase();
-            chronimeterRunning = false;
+            chronometerRunning = false;
         }
 
     }
@@ -102,15 +106,27 @@ public class MainActivity extends AppCompatActivity {
     }
 
 
-    public long stopChromometer(View view) {
+    public long stopChromometer(View v) {
+
+        Log.i("Button tapped", "Stop");
+
+        startButton.setText("Start");
+        startButton.setEnabled(true);
+        startButton.setTextColor(getApplication().getResources().getColor(R.color.enabledButtonColor));
+
+        pauseButton.setEnabled(false);
+        pauseButton.setTextColor(getApplication().getResources().getColor(R.color.disabledButtonColor));
+
+        stopButton.setEnabled(false);
+        stopButton.setTextColor(getApplication().getResources().getColor(R.color.disabledButtonColor));
 
         chronometer.stop();
-        long elapsedMillis = SystemClock.elapsedRealtime() - chronometer.getBase();
+        chronometerRunning = false;
+        long elapsedMillis = SystemClock.elapsedRealtime() - pauseOffset;
 
         Toast.makeText(this, "Elapsed milliseconds: " + elapsedMillis,
                 Toast.LENGTH_SHORT).show();
-
-        chronometer.stop();
+        Log.i("TimeElapsed", String.valueOf(SystemClock.elapsedRealtime() - pauseOffset));
         return elapsedMillis;
     }
 
